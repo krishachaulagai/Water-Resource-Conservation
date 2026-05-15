@@ -20,11 +20,16 @@ public class WaterManager : MonoBehaviour
     public ParticleSystem leak2Water;
     public ParticleSystem leak3Water;
 
+    // UI for "all leaks fixed"
+    public GameObject leakStoppedUI;
+    private bool uiShown = false;
+
     void Update()
     {
         DrainWater();
         UpdateUI();
         HandleParticles();
+        CheckAllLeaksFixed(); 
     }
 
     void DrainWater()
@@ -88,6 +93,8 @@ public class WaterManager : MonoBehaviour
 
     void HandleLeakParticle(bool leakOn, ParticleSystem water)
     {
+        if (water == null) return;
+
         if (leakOn && waterLevel > 0)
         {
             if (!water.isPlaying)
@@ -96,7 +103,21 @@ public class WaterManager : MonoBehaviour
         else
         {
             if (water.isPlaying)
-                water.Stop();
+                water.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+    }
+
+    
+    void CheckAllLeaksFixed()
+    {
+        if (!leak1 && !leak2 && !leak3 && waterLevel > 0 && !uiShown)
+        {
+            uiShown = true;
+
+            if (leakStoppedUI != null)
+                leakStoppedUI.SetActive(true);
+
+            Debug.Log("ALL LEAKS FIXED - WATER SAVED!");
         }
     }
 }
